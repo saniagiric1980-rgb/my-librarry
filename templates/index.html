@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Каталог книг{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Книжная полка</h1>
+  <p>Книги, которые я хочу сохранить и поделиться.</p>
+</section>
+
+{% if books %}
+  <section class="book-grid">
+    {% for book in books %}
+      <article class="book-card">
+        <h2>{{ book["title"] }}</h2>
+
+        {% if book["author"] %}
+          <p class="author">{{ book["author"] }}</p>
+        {% endif %}
+
+        <p class="description">
+          {{ book["description"] or "Описание не добавлено." }}
+        </p>
+
+        <a class="button"
+           href="{{ url_for('download_book', book_id=book['id']) }}">
+          Скачать книгу
+        </a>
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <p class="empty-state">Пока книг нет.</p>
+{% endif %}
+{% endblock %}

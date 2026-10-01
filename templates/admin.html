@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Управление книгами{% endblock %}
+
+{% block content %}
+<h1>Управление книгами</h1>
+
+<section class="panel">
+  <h2>Добавить книгу</h2>
+
+  <form method="post"
+        action="{{ url_for('add_book') }}"
+        enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="title">Название *</label>
+    <input id="title"
+           name="title"
+           type="text"
+           maxlength="200"
+           required>
+
+    <label for="author">Автор</label>
+    <input id="author"
+           name="author"
+           type="text"
+           maxlength="200">
+
+    <label for="description">Описание</label>
+    <textarea id="description"
+              name="description"
+              maxlength="5000"
+              rows="5"></textarea>
+
+    <label for="book_file">Файл книги — PDF или EPUB *</label>
+    <input id="book_file"
+           name="book_file"
+           type="file"
+           accept=".pdf,.epub"
+           required>
+
+    <button class="button" type="submit">Опубликовать</button>
+  </form>
+
+  <p class="hint">Максимальный размер файла — 500 МБ.</p>
+</section>
+
+<section class="panel">
+  <h2>Опубликованные книги</h2>
+
+  {% if books %}
+    <ul class="admin-list">
+      {% for book in books %}
+        <li class="admin-book">
+          <div>
+            <strong>{{ book["title"] }}</strong>
+            {% if book["author"] %}
+              <span class="muted">— {{ book["author"] }}</span>
+            {% endif %}
+            <br>
+            <small>{{ book["original_filename"] }}</small>
+          </div>
+
+          <div class="admin-actions">
+            <a href="{{ url_for('download_book', book_id=book['id']) }}">
+              Скачать
+            </a>
+
+            <form method="post"
+                  action="{{ url_for('delete_book', book_id=book['id']) }}"
+                  onsubmit="return confirm('Удалить эту книгу?')">
+              <input type="hidden"
+                     name="csrf_token"
+                     value="{{ csrf_token() }}">
+              <button class="danger-button" type="submit">Удалить</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Книг пока нет.</p>
+  {% endif %}
+</section>
+{% endblock %}

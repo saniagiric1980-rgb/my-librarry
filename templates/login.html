@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Вход владельца{% endblock %}
+
+{% block content %}
+<section class="panel narrow">
+  <h1>Вход владельца</h1>
+
+  <form method="post" action="{{ url_for('login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="username">Логин</label>
+    <input id="username"
+           name="username"
+           type="text"
+           autocomplete="username"
+           required>
+
+    <label for="password">Пароль</label>
+    <input id="password"
+           name="password"
+           type="password"
+           autocomplete="current-password"
+           required>
+
+    <button class="button" type="submit">Войти</button>
+  </form>
+</section>
+{% endblock %}
