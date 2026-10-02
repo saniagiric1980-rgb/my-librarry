@@ -1,85 +1,105 @@
 {% extends "base.html" %}
-
-{% block title %}Управление книгами{% endblock %}
+{% block title %}Панель управления — Моя библиотека{% endblock %}
 
 {% block content %}
-<h1>Управление книгами</h1>
+<h1>Панель управления</h1>
+<p class="muted">Добавляйте книги ссылкой и управляйте каталогом.</p>
 
 <section class="panel">
-  <h2>Добавить книгу</h2>
+    <h2>Добавить книгу</h2>
 
-  <form method="post"
-        action="{{ url_for('add_book') }}"
-        enctype="multipart/form-data">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <form method="post" action="{{ url_for('add_book') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <label for="title">Название *</label>
-    <input id="title"
-           name="title"
-           type="text"
-           maxlength="200"
-           required>
+        <label for="title">Название *</label>
+        <input
+            type="text"
+            id="title"
+            name="title"
+            maxlength="200"
+            placeholder="Например: Война и мир"
+            required
+        >
 
-    <label for="author">Автор</label>
-    <input id="author"
-           name="author"
-           type="text"
-           maxlength="200">
+        <label for="author">Автор</label>
+        <input
+            type="text"
+            id="author"
+            name="author"
+            maxlength="200"
+            placeholder="Имя автора"
+        >
 
-    <label for="description">Описание</label>
-    <textarea id="description"
-              name="description"
-              maxlength="5000"
-              rows="5"></textarea>
+        <label for="description">Описание</label>
+        <textarea
+            id="description"
+            name="description"
+            rows="4"
+            maxlength="5000"
+            placeholder="Кратко, о чём эта книга"
+        ></textarea>
 
-    <label for="book_file">Файл книги — PDF или EPUB *</label>
-    <input id="book_file"
-           name="book_file"
-           type="file"
-           accept=".pdf,.epub"
-           required>
+        <label for="book_url">Ссылка на книгу *</label>
+        <input
+            type="url"
+            id="book_url"
+            name="book_url"
+            maxlength="2000"
+            placeholder="https://drive.google.com/file/d/.../view?usp=sharing"
+            required
+        >
 
-    <button class="button" type="submit">Опубликовать</button>
-  </form>
+        <small class="hint">
+            Загрузите PDF или EPUB в Google Drive.
+            Нажмите «Поделиться» → «Все, у кого есть ссылка» → роль «Читатель».
+            Затем вставьте ссылку сюда.
+        </small>
 
-  <p class="hint">Максимальный размер файла — 500 МБ.</p>
+        <button type="submit" class="button">Опубликовать</button>
+    </form>
 </section>
 
 <section class="panel">
-  <h2>Опубликованные книги</h2>
+    <h2>Загруженные книги</h2>
 
-  {% if books %}
-    <ul class="admin-list">
-      {% for book in books %}
-        <li class="admin-book">
-          <div>
-            <strong>{{ book["title"] }}</strong>
-            {% if book["author"] %}
-              <span class="muted">— {{ book["author"] }}</span>
-            {% endif %}
-            <br>
-            <small>{{ book["original_filename"] }}</small>
-          </div>
+    {% if books %}
+        <ul class="admin-list">
+            {% for book in books %}
+                <li class="admin-book">
+                    <div>
+                        <strong>{{ book["title"] }}</strong>
+                        <small>
+                            {{ book["author"] if book["author"] else "Автор не указан" }}
+                        </small>
+                        {% if book["description"] %}
+                            <small>{{ book["description"] }}</small>
+                        {% endif %}
+                    </div>
 
-          <div class="admin-actions">
-            <a href="{{ url_for('download_book', book_id=book['id']) }}">
-              Скачать
-            </a>
+                    <div class="admin-actions">
+                        <a
+                            href="{{ url_for('download_book', book_id=book['id']) }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Открыть
+                        </a>
 
-            <form method="post"
-                  action="{{ url_for('delete_book', book_id=book['id']) }}"
-                  onsubmit="return confirm('Удалить эту книгу?')">
-              <input type="hidden"
-                     name="csrf_token"
-                     value="{{ csrf_token() }}">
-              <button class="danger-button" type="submit">Удалить</button>
-            </form>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Книг пока нет.</p>
-  {% endif %}
+                        <form
+                            method="post"
+                            action="{{ url_for('delete_book', book_id=book['id']) }}"
+                        >
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="danger-button">Удалить</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state muted">
+            Книг пока нет — добавьте первую через форму выше.
+        </p>
+    {% endif %}
 </section>
 {% endblock %}
